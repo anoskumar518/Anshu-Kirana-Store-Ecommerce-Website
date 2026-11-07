@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store Reports | Admin | Anshu Kirana Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+  <aside class="admin-sidebar" id="admin-sidebar-container"></aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar" id="admin-topbar-container"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="fw-bold mb-0">Sales & Product Reports</h4>
+        <p class="text-muted small mb-0">Daily sales analytics, best-selling village groceries, and demand reports</p>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+        <i class="bi bi-printer me-1"></i> Print Reports
+      </button>
+    </div>
+
+    <!-- Top Selling Products Card -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-7">
+        <div class="admin-table-card h-100">
+          <div class="p-3 border-bottom d-flex align-items-center gap-2">
+            <i class="bi bi-trophy text-warning fs-5"></i>
+            <h5 class="fw-bold mb-0">Top-Selling Groceries</h5>
+          </div>
+          <div class="table-responsive">
+            <table class="table admin-table mb-0">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Pack Size</th>
+                  <th class="text-center">Units Sold</th>
+                  <th class="text-end">Total Revenue</th>
+                </tr>
+              </thead>
+              <tbody id="top-products-tbody">
+                <tr>
+                  <td colspan="4" class="text-center py-4 text-muted">Loading top products...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Sales Summary Breakdown -->
+      <div class="col-lg-5">
+        <div class="admin-table-card h-100">
+          <div class="p-3 border-bottom d-flex align-items-center gap-2">
+            <i class="bi bi-calendar-check text-success fs-5"></i>
+            <h5 class="fw-bold mb-0">Daily Sales Breakdown</h5>
+          </div>
+          <div class="table-responsive">
+            <table class="table admin-table mb-0">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th class="text-center">Orders</th>
+                  <th class="text-end">Revenue</th>
+                </tr>
+              </thead>
+              <tbody id="daily-sales-tbody">
+                <tr>
+                  <td colspan="3" class="text-center py-4 text-muted">Loading daily sales...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!AdminApp.checkAdminAuth()) return;
+
+      AdminApp.renderSidebar('reports');
+      AdminApp.renderTopbar('Sales & Inventory Reports');
+
+      await loadReports();
+    });
+
+    async function loadReports() {
+      // Load Top Products
+      try {
+        const topRes = await API.get('/api/admin/dashboard/top-products');
+        const tbody = document.getElementById('top-products-tbody');
+        if (topRes.success && topRes.data) {
+          if (topRes.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">No sales recorded yet. Place orders to see statistics.</td></tr>`;
+          } else {
+            tbody.innerHTML = topRes.data.map(p => `
+              <tr>
+                <td><strong class="text-dark">${p.productName}</strong></td>
+                <td><span class="badge bg-light text-dark border">${p.unitName}</span></td>
+                <td class="text-center fw-bold">${p.totalQuantity}</td>
+                <td class="text-end fw-bold text-success">₹${p.totalRevenue}</td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      // Load Daily Sales
+      try {
+        const salesRes = await API.get('/api/admin/dashboard/sales');
+        const sTbody = document.getElementById('daily-sales-tbody');
+        if (salesRes.success && salesRes.data) {
+          if (salesRes.data.length === 0) {
+            sTbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-muted">No daily sales yet.</td></tr>`;
+          } else {
+            sTbody.innerHTML = salesRes.data.map(d => `
+              <tr>
+                <td><strong>${d.date}</strong></td>
+                <td class="text-center fw-semibold">${d.orderCount}</td>
+                <td class="text-end fw-bold text-success">₹${d.revenue}</td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  </script>
+</body>
+</html>

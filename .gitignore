@@ -1,0 +1,8 @@
+target/
+.classpath
+.project
+.settings/
+.idea/
+*.log
+.env
+application-secret.properties

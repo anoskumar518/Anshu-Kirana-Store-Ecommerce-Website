@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Products | Admin | Anshu Kirana Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+  <aside class="admin-sidebar" id="admin-sidebar-container"></aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar" id="admin-topbar-container"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h4 class="fw-bold mb-0">Grocery Products Catalog</h4>
+        <p class="text-muted small mb-0">Add, edit prices, manage variants, and set featured items</p>
+      </div>
+      <button class="btn btn-success d-flex align-items-center gap-2" onclick="openNewProductModal()">
+        <i class="bi bi-plus-lg"></i> Add New Product
+      </button>
+    </div>
+
+    <!-- Products Table Card -->
+    <div class="admin-table-card">
+      <div class="table-responsive">
+        <table class="table admin-table mb-0">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Brand</th>
+              <th>Variants & Prices</th>
+              <th>Featured</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-products-tbody">
+            <tr>
+              <td colspan="8" class="text-center py-4 text-muted">Loading products...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add/Edit Product Modal -->
+  <div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold" id="product-modal-title">Add New Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="product-form" onsubmit="handleSaveProduct(event)">
+          <div class="modal-body p-4">
+            <input type="hidden" id="edit-product-id">
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Product Name (English) <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="prod-name-en" required placeholder="e.g. Sona Masoori Rice (Old)">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Product Name (Telugu) <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="prod-name-te" required placeholder="e.g. సోనా మసూరి బియ్యం">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Category <span class="text-danger">*</span></label>
+                <select class="form-select" id="prod-category-select" required>
+                  <!-- Injected via JS -->
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Brand <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="prod-brand" required placeholder="e.g. Freedom, Tata, Aashirvaad">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold">Image URL</label>
+                <input type="url" class="form-control" id="prod-image-url" placeholder="https://images.unsplash.com/...">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Description (English)</label>
+                <textarea class="form-control" id="prod-desc-en" rows="2" placeholder="Grain quality, harvest year, etc."></textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Description (Telugu)</label>
+                <textarea class="form-control" id="prod-desc-te" rows="2" placeholder="వివరణ"></textarea>
+              </div>
+
+              <!-- Initial Variant Section (Only for new products) -->
+              <div id="new-variant-fields" class="col-12 border-top pt-3 mt-3">
+                <h6 class="fw-bold text-success mb-2">Initial Pack Size & Pricing</h6>
+                <div class="row g-2">
+                  <div class="col-md-3">
+                    <label class="form-label small fw-bold">Unit / Size <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" id="var-unit" placeholder="e.g. 1 kg, 500 g, 5 kg">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small fw-bold">MRP (₹) <span class="text-danger">*</span></label>
+                    <input type="number" step="0.5" class="form-control form-control-sm" id="var-mrp" placeholder="100.00">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small fw-bold">Selling Price (₹) <span class="text-danger">*</span></label>
+                    <input type="number" step="0.5" class="form-control form-control-sm" id="var-price" placeholder="90.00">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small fw-bold">Initial Stock <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control form-control-sm" id="var-stock" value="20">
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 mt-3">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="prod-featured">
+                  <label class="form-check-label small fw-bold" for="prod-featured">Mark as Featured on Homepage</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="prod-active" checked>
+                  <label class="form-check-label small fw-bold" for="prod-active">Active (Available for purchase)</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-success btn-sm px-3" id="save-product-btn">Save Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    let adminProducts = [];
+    let adminCategories = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!AdminApp.checkAdminAuth()) return;
+
+      AdminApp.renderSidebar('products');
+      AdminApp.renderTopbar('Grocery Products');
+
+      await loadCategories();
+      await loadProducts();
+    });
+
+    async function loadCategories() {
+      try {
+        const res = await API.get('/api/admin/categories');
+        if (res.success && res.data) {
+          adminCategories = res.data;
+          const select = document.getElementById('prod-category-select');
+          if (select) {
+            select.innerHTML = adminCategories.map(c => `
+              <option value="${c.id}">${c.nameEn} (${c.nameTe})</option>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadProducts() {
+      const tbody = document.getElementById('admin-products-tbody');
+      try {
+        const res = await API.get('/api/products', { size: 50 });
+        if (res.success && res.data) {
+          adminProducts = res.data.content || [];
+          renderProductsTable();
+        }
+      } catch (err) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="text-danger text-center">Failed to load products: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderProductsTable() {
+      const tbody = document.getElementById('admin-products-tbody');
+      if (!tbody) return;
+
+      if (adminProducts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No products found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = adminProducts.map(p => {
+        const defaultVar = p.defaultVariant || (p.variants && p.variants[0]) || {};
+        return `
+          <tr>
+            <td>
+              <img src="${p.imageUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=80'}"
+                   alt="" class="rounded" style="width: 44px; height: 44px; object-fit: contain; background: #f8fafc;">
+            </td>
+            <td>
+              <div class="fw-bold">${p.nameEn}</div>
+              <div class="small text-muted">${p.nameTe}</div>
+            </td>
+            <td><span class="badge bg-light text-dark border">${p.categoryNameEn || 'General'}</span></td>
+            <td>${p.brand}</td>
+            <td>
+              ${p.variants && p.variants.length > 0 ? p.variants.map(v => `
+                <div class="small mb-1">
+                  <span class="fw-semibold">${v.unitName}</span>:
+                  <span class="text-success fw-bold">₹${v.sellingPrice}</span>
+                  <span class="text-muted text-decoration-line-through">₹${v.mrp}</span>
+                  <span class="badge ${v.stockQuantity > 5 ? 'bg-light text-secondary' : 'bg-danger-subtle text-danger'} small ms-1">${v.stockQuantity} in stock</span>
+                </div>
+              `).join('') : '<span class="text-muted small">No variants</span>'}
+            </td>
+            <td>
+              ${p.isFeatured ? '<span class="badge bg-warning text-dark"><i class="bi bi-star-fill me-1"></i>Featured</span>' : '<span class="text-muted small">No</span>'}
+            </td>
+            <td>
+              ${p.isActive ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>'}
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditProductModal(${p.id})">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="toggleDeactivateProduct(${p.id})" title="Deactivate">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openNewProductModal() {
+      document.getElementById('edit-product-id').value = '';
+      document.getElementById('product-modal-title').textContent = 'Add New Grocery Product';
+      document.getElementById('product-form').reset();
+      document.getElementById('new-variant-fields').style.display = 'block';
+
+      const modal = new bootstrap.Modal(document.getElementById('productModal'));
+      modal.show();
+    }
+
+    function openEditProductModal(id) {
+      const p = adminProducts.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('edit-product-id').value = p.id;
+      document.getElementById('product-modal-title').textContent = `Edit Product: ${p.nameEn}`;
+      document.getElementById('prod-name-en').value = p.nameEn;
+      document.getElementById('prod-name-te').value = p.nameTe;
+      document.getElementById('prod-category-select').value = p.categoryId;
+      document.getElementById('prod-brand').value = p.brand;
+      document.getElementById('prod-image-url').value = p.imageUrl || '';
+      document.getElementById('prod-desc-en').value = p.descriptionEn || '';
+      document.getElementById('prod-desc-te').value = p.descriptionTe || '';
+      document.getElementById('prod-featured').checked = !!p.isFeatured;
+      document.getElementById('prod-active').checked = !!p.isActive;
+
+      // Hide initial variant fields on edit
+      document.getElementById('new-variant-fields').style.display = 'none';
+
+      const modal = new bootstrap.Modal(document.getElementById('productModal'));
+      modal.show();
+    }
+
+    async function handleSaveProduct(e) {
+      e.preventDefault();
+
+      const editId = document.getElementById('edit-product-id').value;
+      const nameEn = document.getElementById('prod-name-en').value.trim();
+      const nameTe = document.getElementById('prod-name-te').value.trim();
+      const categoryId = document.getElementById('prod-category-select').value;
+      const brand = document.getElementById('prod-brand').value.trim();
+      const imageUrl = document.getElementById('prod-image-url').value.trim();
+      const descEn = document.getElementById('prod-desc-en').value.trim();
+      const descTe = document.getElementById('prod-desc-te').value.trim();
+      const isFeatured = document.getElementById('prod-featured').checked;
+      const isActive = document.getElementById('prod-active').checked;
+
+      const payload = {
+        nameEn,
+        nameTe,
+        categoryId: Number(categoryId),
+        brand,
+        imageUrl,
+        descriptionEn: descEn,
+        descriptionTe: descTe,
+        isFeatured,
+        isActive
+      };
+
+      if (!editId) {
+        // Add initial variant
+        const unitName = document.getElementById('var-unit').value.trim() || '1 kg';
+        const mrp = Number(document.getElementById('var-mrp').value) || 100;
+        const sellingPrice = Number(document.getElementById('var-price').value) || 90;
+        const initialStock = Number(document.getElementById('var-stock').value) || 20;
+
+        payload.variants = [{
+          unitName,
+          mrp,
+          sellingPrice,
+          initialStock,
+          isDefault: true
+        }];
+      }
+
+      try {
+        let res;
+        if (editId) {
+          res = await API.put(`/api/admin/products/${editId}`, payload);
+        } else {
+          res = await API.post('/api/admin/products', payload);
+        }
+
+        if (res.success) {
+          UI.showToast(editId ? 'Product updated successfully' : 'Product created successfully', 'success');
+          const modalEl = document.getElementById('productModal');
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          if (modal) modal.hide();
+          await loadProducts();
+        }
+      } catch (err) {
+        UI.showToast(err.message, 'error');
+      }
+    }
+
+    async function toggleDeactivateProduct(id) {
+      if (!confirm('Are you sure you want to deactivate this product?')) return;
+      try {
+        const res = await API.delete(`/api/admin/products/${id}`);
+        if (res.success) {
+          UI.showToast('Product deactivated', 'info');
+          await loadProducts();
+        }
+      } catch (err) {
+        UI.showToast(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

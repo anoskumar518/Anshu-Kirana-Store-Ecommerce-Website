@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grocery Products | Anshu Kirana Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div>
+        <i class="bi bi-truck text-warning me-1"></i>
+        <span data-i18n="freeDeliveryMsg">Free delivery on orders above ₹299!</span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <a href="tel:+917993542873" class="d-none d-sm-inline">+91 79935 42873</a>
+        <div class="btn-group btn-group-sm">
+          <button type="button" class="btn lang-toggle-btn active" data-lang="en" onclick="I18N.setLanguage('en')">English</button>
+          <button type="button" class="btn lang-toggle-btn" data-lang="te" onclick="I18N.setLanguage('te')">తెలుగు</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg main-navbar py-2">
+    <div class="container">
+      <a class="navbar-brand d-flex flex-column" href="/index.html">
+        <span class="brand-logo d-flex align-items-center gap-2">
+          <i class="bi bi-basket2-fill text-success"></i>
+          <span data-i18n="appName">Anshu Kirana Store</span>
+        </span>
+        <span class="brand-tagline" data-i18n="tagline">Fresh Groceries at Your Village Doorstep</span>
+      </a>
+
+      <!-- Location -->
+      <div class="location-pill ms-2 me-auto d-none d-md-flex" data-bs-toggle="modal" data-bs-target="#villageSelectModal">
+        <i class="bi bi-geo-alt-fill text-danger"></i>
+        <span class="current-village-name">Repudi Village</span>
+      </div>
+
+      <!-- Search -->
+      <form class="header-search flex-grow-1 mx-lg-4 my-2 my-lg-0" id="products-search-form" onsubmit="onProductPageSearch(event)">
+        <input type="text" id="product-page-search" class="form-control" placeholder="Search rice, dal, oil, spices..." data-i18n-placeholder="searchPlaceholder">
+        <button type="submit" class="search-btn"><i class="bi bi-search"></i></button>
+      </form>
+
+      <!-- Auth & Cart -->
+      <div class="d-flex align-items-center gap-2 gap-lg-3">
+        <div id="navbar-auth-section"></div>
+        <a href="/cart.html" class="btn btn-primary-kirana d-flex align-items-center gap-2 position-relative">
+          <i class="bi bi-cart3 fs-5"></i>
+          <span class="d-none d-md-inline" data-i18n="myCart">Cart</span>
+          <span class="cart-badge cart-count-badge" style="display: none;">0</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="bg-white border-bottom py-2">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 small">
+          <li class="breadcrumb-item"><a href="/index.html" class="text-decoration-none text-muted" data-i18n="home">Home</a></li>
+          <li class="breadcrumb-item active text-dark fw-bold" aria-current="page" data-i18n="products">Products Catalog</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <div class="container my-4">
+    <div class="row g-4">
+      <!-- Filter Sidebar (Desktop) -->
+      <div class="col-lg-3 d-none d-lg-block">
+        <div class="card border-0 shadow-sm rounded-3 p-3 sticky-top" style="top: 85px;">
+          <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-3">
+            <h6 class="fw-bold mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-funnel text-success"></i> <span data-i18n="filters">Filters</span>
+            </h6>
+            <button class="btn btn-link btn-sm text-decoration-none text-muted p-0" onclick="resetFilters()">Reset All</button>
+          </div>
+
+          <!-- Categories List Filter -->
+          <div class="mb-4">
+            <label class="form-label fw-bold small text-uppercase text-secondary" data-i18n="categories">Categories</label>
+            <div class="d-flex flex-column gap-1" id="filter-categories-list">
+              <!-- Injected by products.js -->
+            </div>
+          </div>
+
+          <!-- Brands Filter -->
+          <div class="mb-4">
+            <label class="form-label fw-bold small text-uppercase text-secondary">Brands</label>
+            <div class="d-flex flex-column gap-1" id="filter-brands-list">
+              <!-- Injected by products.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Grid Area -->
+      <div class="col-lg-9">
+        <!-- Top Toolbar (Sort & Count) -->
+        <div class="card border-0 shadow-sm p-3 mb-3 rounded-3">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+              <span class="fw-bold fs-5" id="products-count-text">Groceries Catalog</span>
+              <div class="small text-muted" id="active-filter-badge">Showing all items</div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+              <label class="small text-nowrap text-muted fw-semibold" data-i18n="sortBy">Sort By:</label>
+              <select class="form-select form-select-sm" id="sort-select" onchange="onSortChange(this.value)">
+                <option value="id-desc" data-i18n="newest">Newest First</option>
+                <option value="nameEn-asc">Name: A to Z</option>
+                <option value="brand-asc">By Brand</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Cards Grid -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="products-catalog-grid">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <nav class="mt-4 d-flex justify-content-center" id="pagination-container">
+          <!-- Injected via JavaScript -->
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Village Modal -->
+  <div class="modal fade" id="villageSelectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold" data-i18n="selectVillage">Select Your Village</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="list-group list-group-flush" id="serviceable-villages-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating WhatsApp -->
+  <a id="floating-whatsapp-btn" href="#" target="_blank" class="floating-whatsapp">
+    <i class="bi bi-whatsapp"></i>
+  </a>
+
+  <!-- Mobile Bottom Nav -->
+  <div class="mobile-bottom-nav d-lg-none">
+    <a href="/index.html" class="mobile-nav-item">
+      <i class="bi bi-house-door-fill"></i>
+      <span data-i18n="home">Home</span>
+    </a>
+    <a href="/products.html" class="mobile-nav-item active">
+      <i class="bi bi-grid-fill"></i>
+      <span data-i18n="products">Products</span>
+    </a>
+    <a href="/cart.html" class="mobile-nav-item position-relative">
+      <i class="bi bi-cart3"></i>
+      <span data-i18n="myCart">Cart</span>
+      <span class="cart-badge cart-count-badge" style="display: none;">0</span>
+    </a>
+    <a href="/orders.html" class="mobile-nav-item">
+      <i class="bi bi-bag-check-fill"></i>
+      <span data-i18n="myOrders">Orders</span>
+    </a>
+    <a href="/login.html" class="mobile-nav-item">
+      <i class="bi bi-person-fill"></i>
+      <span data-i18n="login">Account</span>
+    </a>
+  </div>
+
+  <footer class="main-footer">
+    <div class="container text-center small text-muted">
+      &copy; 2026 Anshu Kirana Store • Village Grocery Platform • COD Available
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/products.js"></script>
+</body>
+</html>

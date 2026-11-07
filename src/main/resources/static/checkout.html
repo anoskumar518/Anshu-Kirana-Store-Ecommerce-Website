@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | Anshu Kirana Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div>
+        <i class="bi bi-shield-check text-warning me-1"></i>
+        <span>Doorstep Cash on Delivery (COD) Grocery Order</span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <a href="tel:+917993542873" class="d-none d-sm-inline">+91 79935 42873 </a>
+        <div class="btn-group btn-group-sm">
+          <button type="button" class="btn lang-toggle-btn active" data-lang="en" onclick="I18N.setLanguage('en')">English</button>
+          <button type="button" class="btn lang-toggle-btn" data-lang="te" onclick="I18N.setLanguage('te')">తెలుగు</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg main-navbar py-2">
+    <div class="container">
+      <a class="navbar-brand d-flex flex-column" href="/index.html">
+        <span class="brand-logo d-flex align-items-center gap-2">
+          <i class="bi bi-basket2-fill text-success"></i>
+          <span data-i18n="appName">Anshu Kirana Store</span>
+        </span>
+        <span class="brand-tagline" data-i18n="tagline">Fresh Groceries at Your Village Doorstep</span>
+      </a>
+
+      <div class="d-flex align-items-center gap-2 ms-auto">
+        <a href="/cart.html" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+          <i class="bi bi-arrow-left"></i>
+          <span data-i18n="myCart">Back to Cart</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Checkout Container -->
+  <div class="container my-5">
+    <h3 class="fw-bold mb-4" data-i18n="checkoutTitle">Complete Your Village Delivery Order</h3>
+
+    <div class="row g-4">
+      <!-- Checkout Form -->
+      <div class="col-lg-8">
+        <form id="checkout-form" onsubmit="handlePlaceOrder(event)">
+          <!-- Customer Personal Details -->
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2 border-bottom pb-2">
+              <i class="bi bi-person-lines-fill text-success"></i>
+              <span data-i18n="personalDetails">Customer Information</span>
+            </h5>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold" data-i18n="fullName">Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="cust-name" required placeholder="e.g. Venkat Rao">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold" data-i18n="mobileNumber">10-Digit Mobile Number <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light fw-bold">+91</span>
+                  <input type="tel" class="form-control" id="cust-phone" required pattern="[6-9][0-9]{9}" maxlength="10" placeholder="9876543211">
+                </div>
+                <div class="form-text small">Delivery updates will be phoned to this number.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Village Delivery Address -->
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2 border-bottom pb-2">
+              <i class="bi bi-geo-alt-fill text-danger"></i>
+              <span data-i18n="deliveryAddress">Village Delivery Address</span>
+            </h5>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold" data-i18n="village">Village Name <span class="text-danger">*</span></label>
+                <select class="form-select" id="cust-village" required onchange="onVillageDropdownChange(this.value)">
+                  <option value="Repudi Village" selected>Repudi Village</option>
+                  <option value="Kummarikunta">Kummarikunta</option>
+                  <option value="Kothapalli">Kothapalli</option>
+                  <option value="Nagareddy Gudam">Nagareddy Gudam</option>
+                  <option value="Ananthapur Village">Ananthapur Village</option>
+                  <option value="LIG Colony">LIG Colony</option>
+                  <option value="Madhavaram">Madhavaram</option>
+                  <option value="OTHER">Other Nearby Village / Area</option>
+                </select>
+                <input type="text" class="form-control mt-2" id="cust-custom-village" placeholder="Type your village name here" style="display: none;">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Pincode</label>
+                <input type="text" class="form-control" id="cust-pincode" value="518001" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold" data-i18n="street">Street / House Number / Colony <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="cust-street" required placeholder="e.g. House No 3-45, Gandhi Street">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold" data-i18n="landmark">Landmark (Helpful for delivery boy)</label>
+                <input type="text" class="form-control" id="cust-landmark" placeholder="e.g. Near Ramalayam Temple, Old Water Tank, Panchayat Office">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold" data-i18n="instructions">Delivery Instructions</label>
+                <textarea class="form-control" id="cust-instructions" rows="2" placeholder="e.g. Deliver before 6 PM, or call upon arrival"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Options -->
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2 border-bottom pb-2">
+              <i class="bi bi-wallet2 text-warning"></i>
+              <span data-i18n="paymentMethod">Payment Method</span>
+            </h5>
+
+            <div class="d-flex flex-column gap-3">
+              <!-- COD Option -->
+              <div class="form-check p-3 rounded-3 border border-success bg-success-subtle">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="pay-cod" value="COD" checked>
+                <label class="form-check-label w-100 cursor-pointer" for="pay-cod">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold fs-6 text-success"><i class="bi bi-cash-stack me-2"></i>Cash on Delivery (COD)</span>
+                    <span class="badge bg-success">Recommended</span>
+                  </div>
+                  <p class="small text-muted mb-0 mt-1" data-i18n="codDesc">
+                    Pay in cash when store boy delivers items to your home. No advance online payment needed.
+                  </p>
+                </label>
+              </div>
+
+              <!-- UPI / Online Option Placeholder -->
+              <div class="form-check p-3 rounded-3 border bg-light opacity-75">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="pay-upi" value="UPI">
+                <label class="form-check-label w-100" for="pay-upi">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-qr-code-scan me-2 text-primary"></i>UPI / QR Code on Delivery</span>
+                    <span class="badge bg-secondary">GooglePay / PhonePe</span>
+                  </div>
+                  <p class="small text-muted mb-0 mt-1" data-i18n="upiDesc">
+                    You can also scan our delivery boy's UPI QR code using PhonePe, GooglePay, or Paytm upon delivery.
+                  </p>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Order -->
+          <button type="submit" id="place-order-submit-btn" class="btn btn-primary-kirana btn-lg w-100 py-3 fw-bold fs-5 shadow">
+            <i class="bi bi-bag-check-fill me-2"></i>
+            <span data-i18n="placeOrder">Confirm & Place COD Order</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Order Summary Column -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 85px;">
+          <h5 class="fw-bold mb-3 border-bottom pb-2">Order Items</h5>
+
+          <div id="checkout-items-preview" class="mb-3 d-flex flex-column gap-2" style="max-height: 240px; overflow-y: auto;">
+            <!-- Injected by checkout.js -->
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between mb-2 small">
+            <span class="text-muted" data-i18n="subtotal">Subtotal</span>
+            <span class="fw-bold" id="checkout-subtotal">₹0</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2 small">
+            <span class="text-muted" data-i18n="deliveryFee">Village Delivery Charge</span>
+            <span class="fw-bold" id="checkout-delivery">₹0</span>
+          </div>
+
+          <hr class="my-2">
+
+          <div class="d-flex justify-content-between fs-5 fw-bold text-success mb-3">
+            <span data-i18n="grandTotal">Payable Amount</span>
+            <span id="checkout-total">₹0</span>
+          </div>
+
+          <div class="alert alert-warning py-2 px-3 small rounded-3 mb-0">
+            <i class="bi bi-clock-history me-1"></i> Estimated Delivery: <strong>Within 2 hours or same-day evening</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="main-footer">
+    <div class="container text-center small text-muted">
+      &copy; 2026 Anshu Kirana Store • Village Grocery Platform • COD Available
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/checkout.js"></script>
+</body>
+</html>
